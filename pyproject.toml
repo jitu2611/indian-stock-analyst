@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "indian-stock-analyst"
+version = "0.2.0"
+description = "Analyze Indian stock portfolios with the TradingAgents multi-agent engine"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "openpyxl>=3.1",
+  "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+engine = [
+  "tradingagents @ git+https://github.com/jitu2611/TradingAgents.git@9dee508c44662702281a8dbaad1f7b42179b5ba7",
+]
+dev = ["pytest>=8"]
+
+[project.scripts]
+indian-stock-analyst = "indian_stock_analyst.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

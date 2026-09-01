@@ -1,262 +1,191 @@
 <div align="center">
 
-# 📊 Indian Stock Analyst — Claude Skill
+# 📊 Indian Stock Analyst
 
-**A Claude AI skill that turns your Zerodha / Groww portfolio CSV into a professional Buy / Hold / Avoid report — in seconds.**
-
-[![Claude Skill](https://img.shields.io/badge/Claude-Skill-blueviolet?logo=anthropic&logoColor=white)](https://claude.ai)
-[![NSE/BSE](https://img.shields.io/badge/Market-NSE%20%2F%20BSE-orange)](https://nseindia.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Made for India](https://img.shields.io/badge/Made%20for-🇮🇳%20India-blue)](https://github.com/jitu2611)
-
----
-
-> *"Upload your holdings CSV → get a research-backed verdict on every stock in your portfolio."*
+**NSE/BSE portfolio analysis powered by the [TradingAgents](https://github.com/jitu2611/TradingAgents) multi-agent engine.**
 
 </div>
 
----
+Indian Stock Analyst reads a Zerodha, Groww, or other broker holdings export, normalizes each symbol for Yahoo Finance (`RELIANCE.NS` / `500325.BO`), and runs it through TradingAgents' complete research graph:
 
-## ✨ What It Does
+- Market/technical, sentiment, news, and fundamentals analysts
+- Bull and bear researchers plus a research manager
+- Trader, risk-management debate, and portfolio manager
+- Five-tier engine rating mapped to this project's Buy/Hold/Avoid portfolio view
+- One consolidated portfolio report plus complete per-stock agent reports
 
-Drop your Zerodha / Groww / Kite holdings CSV into Claude and this skill automatically:
+> Research only. The integration never places orders.
 
-- 🔍 **Researches every stock** using live web search — earnings, news, SEBI actions, analyst ratings
-- 📣 **Gauges retail sentiment** from Reddit (r/IndiaInvestments, r/DalalStreetTalks), Twitter/X, and forums
-- 🟢🟡🔴 **Assigns a Buy / Hold / Avoid verdict** with High / Medium / Low confidence
-- 📋 **Generates a full PDF-ready report** with a summary table + detailed section per stock
-- 💡 **Flags sector concentrations**, value traps, and structural risks in plain English
-- 🤖 **Incorporates AI theme signals** — which stocks face AI disruption vs. which benefit from it
+## Architecture
 
----
+```text
+Broker CSV/XLSX
+    │
+    ├─ parse + deduplicate holdings
+    ├─ normalize NSE → .NS / BSE → .BO
+    │
+    ▼
+jitu2611/TradingAgents
+    ├─ market + social + news + fundamentals analysts
+    ├─ bull/bear research debate
+    ├─ trader + risk debate
+    └─ portfolio-manager rating
+    │
+    ▼
+portfolio-report.md + results.json + per-stock report trees
+```
 
-## 🚀 Quick Start
+The integration pins TradingAgents commit `9dee508c44662702281a8dbaad1f7b42179b5ba7` for reproducible installation. TradingAgents uses Yahoo Finance for Indian price/fundamental data, Nifty 50 (`^NSEI`) as the `.NS` benchmark, and Sensex (`^BSESN`) as the `.BO` benchmark. India-specific RBI, SEBI, rupee, crude, GDP, FII, and monsoon queries replace the default US-centric macro query set.
 
-### 1. Install the skill
+## Installation
 
-**Option A — Upload directly on Claude.ai**
-
-1. Go to **Settings → Customize → Skills**
-2. Click **+** → Upload a skill → select the `indian-stock-analyst/` folder (or ZIP it first)
-3. Done ✅ — the skill auto-activates when you upload a portfolio file
-
-**Option B — Clone this repo**
+TradingAgents requires Python 3.10 or newer. Python 3.12 is recommended.
 
 ```bash
 git clone https://github.com/jitu2611/indian-stock-analyst.git
-```
-Then upload the `indian-stock-analyst/` folder via Claude Settings → Skills.
-
----
-
-### 2. Export your holdings CSV
-
-**Zerodha Kite:**
-> Holdings → ⬇️ Download → `holdings.csv`
-
-**Groww:**
-> Portfolio → Export → CSV
-
-**Any broker:** Just make sure the CSV has an `Instrument` (or `Symbol`) column with NSE tickers.
-
----
-
-### 3. Upload & trigger
-
-Open Claude and either:
-- Upload the CSV — Claude auto-detects it's a portfolio and runs the skill
-- Or type: `/indian-stock-analyst` and upload the file
-
-That's it. You'll get a full report in ~60 seconds.
-
----
-
-## 📄 Sample Output
-
-> Below is a real analysis generated on a 36-stock Indian portfolio (March 2026).
-
----
-
-### Summary Table (excerpt)
-
-| # | Stock | Sector | Verdict | Confidence |
-|---|-------|--------|---------|------------|
-| 1 | SBIN | PSU Banking | 🟢 BUY | High |
-| 2 | AXISBANK | Private Banking | 🟢 BUY | High |
-| 3 | ACUTAAS | Specialty Chemicals | 🟢 BUY | High |
-| 4 | CGPOWER | Electrical Equipment | 🟢 BUY | High |
-| 5 | BHEL | Power Equipment | 🟢 BUY | High |
-| 6 | TATAPOWER | Power & Renewables | 🟢 BUY | High |
-| 7 | KPITTECH | Auto IT / ER&D | 🔴 AVOID | High |
-| 8 | TATAELXSI | Auto IT / ER&D | 🔴 AVOID | High |
-| 9 | EXIDEIND | Batteries | 🔴 AVOID | Medium |
-| 10 | FINCABLES | Cables | 🔴 AVOID | Medium |
-
-📄 **[View the full 34-stock analysis report →](examples/sample-analysis-report.md)**
-
----
-
-### Sample Stock Verdict
-
-```
-### SBIN — STATE BANK OF INDIA
-Verdict: 🟢 BUY  |  Confidence: High  |  Your P&L: +17.7%
-
-Latest News:
-SBI delivered a blowout Q3 FY26 result — net profit of ₹21,028 crore,
-beating analyst estimates by nearly 21%. The bank raised FY26 credit
-growth guidance to 13–15% and forged a new partnership with Japan's MUFG.
-
-Retail Sentiment:
-Broadly bullish. Widely discussed as a defensive PSU bet amid geopolitical
-turbulence and crude spike.
-
-Reasoning:
-Strong earnings beat, upgraded loan growth outlook, and outperformance vs.
-the index all point decisively in one direction. Standout buy.
+cd indian-stock-analyst
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install -e '.[engine]'
+cp .env.example .env
 ```
 
----
+### Option A: provider API key
 
-## 🧠 How It Works
+Add an API key for your selected LLM provider to `.env`, for example:
 
-![Portfolio research workflow](docs/portfolio-analysis-flow.svg)
-
-```
-Your CSV
-   │
-   ▼
-Parse holdings (Instrument, Qty, Avg Cost, LTP, P&L)
-   │
-   ▼
-For each stock → 2 web searches
-   ├── 📰 News (ET, Livemint, Moneycontrol, NSE filings)
-   └── 💬 Sentiment (Reddit, Twitter/X, forums)
-   │
-   ▼
-Verdict engine
-   ├── 🟢 BUY   — strong results, catalysts, positive sentiment
-   ├── 🟡 HOLD  — mixed signals, wait-and-watch
-   └── 🔴 AVOID — deteriorating fundamentals, regulatory risk, bearish
-   │
-   ▼
-Full Markdown report with summary table + detailed section per stock
+```dotenv
+ANTHROPIC_API_KEY=...
+# or OPENAI_API_KEY / GOOGLE_API_KEY / OPENROUTER_API_KEY
 ```
 
----
+TradingAgents supports additional providers and local/OpenAI-compatible models; see its [provider documentation](https://github.com/jitu2611/TradingAgents#required-apis).
 
-## 📂 Repository Structure
+### Option B: Pi OAuth backbone
 
-```
-indian-stock-analyst/
-├── SKILL.md                        ← The Claude skill definition
-├── README.md                       ← This file
-├── examples/
-│   ├── sample-holdings.csv         ← Example portfolio CSV
-│   └── sample-analysis-report.md  ← Full real-world analysis output
-└── LICENSE
-```
+If Pi is already authenticated through `/login` (including ChatGPT Plus/Pro Codex OAuth), use the bundled
+LangChain-to-Pi RPC adapter. It starts Pi with no coding tools, extensions, skills, or context files; each
+LangChain call receives a fresh ephemeral Pi session. TradingAgents still owns its market-data tools and graph.
 
----
-
-## 📋 CSV Format
-
-The skill works with standard broker export formats. Minimum required column:
-
-| Instrument | Qty. | Avg. cost | LTP | Invested | Cur. val | P&L |
-|------------|------|-----------|-----|----------|----------|-----|
-| RELIANCE | 10 | 2450.00 | 2980.00 | 24500 | 29800 | 5300 |
-| TCS | 5 | 3200.00 | 3550.00 | 16000 | 17750 | 1750 |
-| INFY | 15 | 1450.00 | 1320.00 | 21750 | 19800 | -1950 |
-
-👉 **[Download sample CSV →](examples/sample-holdings.csv)**
-
----
-
-## ⚙️ Verdict Criteria
-
-| Verdict | When assigned |
-|---------|---------------|
-| 🟢 **BUY** | Strong recent results or catalysts, positive sentiment, no major red flags |
-| 🟡 **HOLD** | Mixed signals — some positives but also concerns; wait-and-watch |
-| 🔴 **AVOID** | Negative news (fraud, missed results, regulatory action), bearish sentiment, deteriorating fundamentals |
-
-**Confidence Levels:**
-- **High** — Clear signal from multiple independent sources
-- **Medium** — Mixed sources or limited recent coverage
-- **Low** — Insufficient data; verdict flagged as uncertain
-
----
-
-## 🌟 Features At A Glance
-
-| Feature | Detail |
-|---------|--------|
-| 📁 File support | CSV and Excel (.xlsx) |
-| 🏦 Brokers | Zerodha, Groww, Upstox, Angel One, HDFC Sky, and any standard export |
-| 📈 Markets | NSE and BSE stocks |
-| 🔎 Research sources | Economic Times, Livemint, Moneycontrol, NSE filings, Reddit, Twitter/X |
-| 🤖 AI awareness | Flags stocks facing AI disruption vs. AI-enabled growth |
-| 🧩 ETF handling | Skips ETFs/MFs from stock verdicts, notes them separately |
-| ⚠️ Edge cases | Ambiguous tickers flagged, penny stocks skipped, unlisted stocks noted |
-| 🗂️ Portfolio size | Works best with 5–40 stocks; groups verdicts for 15+ stock portfolios |
-
----
-
-## 💬 Example Prompts
-
-Once the skill is installed, try:
-
-```
-"Analyze my portfolio"
-"What should I sell?"
-"Which stocks should I buy more of?"
-"Show me my sector breakdown"
-"Categorize my holdings by sector"
-"Should I swap EXIDEIND with TATAPOWER?"
-"Is holding Exide justified for the EV theme?"
+```bash
+pi --list-models | grep openai-codex
+indian-stock-analyst holdings.csv \
+  --provider pi \
+  --pi-provider openai-codex \
+  --deep-model gpt-5.6-sol \
+  --quick-model gpt-5.6-luna \
+  --max-stocks 1
 ```
 
-The skill understands natural language — no special syntax needed.
+The adapter translates LangChain tool schemas into a strict JSON contract, converts Pi responses back into
+`AIMessage.tool_calls` for TradingAgents' ToolNodes, and validates Pydantic structured outputs. OAuth tokens
+remain managed by Pi and are never copied into the Python process or `.env`.
 
----
+### Configure FRED macro data
 
-## ⚠️ Disclaimer
+TradingAgents' macro tool requires a free FRED API key. Configure it through the hidden-input helper so the
+key is validated and stored in the ignored `.env` file with mode `0600`:
 
-This skill is for **informational and educational purposes only**. All reports are AI-generated based on publicly available news and social media signals.
+```bash
+./scripts/configure-fred.sh
+```
 
-**This is NOT financial advice.** Past performance is not indicative of future results. Please consult a **SEBI-registered investment advisor** before making any investment decisions.
+Create a key at <https://fred.stlouisfed.org/docs/api/api_key.html>. Do not paste it into chat or commit `.env`.
+FRED primarily supplies US/global macro series; it complements rather than replaces RBI and Indian macro sources.
 
----
+## Run a portfolio analysis
 
-## 🤝 Contributing
+```bash
+indian-stock-analyst holdings.csv \
+  --date 2026-08-31 \
+  --provider anthropic \
+  --deep-model claude-sonnet-4-6 \
+  --quick-model claude-haiku-4-5
+```
 
-Contributions welcome! If you'd like to improve the skill:
+Or invoke the Python module directly:
 
-1. Fork the repo
-2. Edit `SKILL.md`
-3. Test it on your own portfolio
-4. Submit a PR with a description of what you improved
+```bash
+python -m indian_stock_analyst holdings.xlsx --exchange NSE
+```
 
-Ideas for contributions:
-- Add support for US stocks (NYSE/NASDAQ)
-- Add F&O position analysis
-- Add mutual fund NAV analysis
-- Improve sector classification accuracy
-- Add technical analysis signals (RSI, MACD)
+Useful options:
 
----
+```text
+--exchange NSE|BSE       Default exchange for unsuffixed symbols
+--output PATH            Output directory (default: analysis-output/<date>)
+--max-stocks N           Limit a test run and control LLM cost
+--analysts LIST          market,social,news,fundamentals
+--debate-rounds N        Bull/bear research depth
+--risk-rounds N          Risk-team discussion depth
+--no-checkpoint          Disable crash/resume checkpoints
+--debug                  Stream verbose TradingAgents output
+--pi-provider NAME       Pi provider used when --provider pi
+--pi-deep-thinking LEVEL Pi reasoning for deep agents (default: high)
+--pi-quick-thinking LVL  Pi reasoning for quick agents (default: minimal)
+--pi-timeout SECONDS     Timeout for each Pi model call (default: 600)
+```
 
-## 📜 License
+Start with `--max-stocks 1`: the full graph makes multiple LLM calls per stock and can be slow or expensive on large portfolios.
 
-MIT License — free to use, share, and modify. See [LICENSE](LICENSE) for details.
+## Output
 
----
+```text
+analysis-output/<date>/
+├── portfolio-report.md       # consolidated human-readable decisions
+├── results.json              # machine-readable ratings and errors
+├── artifacts/
+│   └── RELIANCE.NS/
+│       ├── complete_report.md
+│       ├── 1_analysts/
+│       ├── 2_research/
+│       ├── 3_trading/
+│       ├── 4_risk/
+│       └── 5_portfolio/
+└── runtime/                  # TradingAgents state/log output
+```
 
-<div align="center">
+A bad ticker or transient provider failure is recorded against that stock without aborting the rest of the portfolio. Checkpointing is on by default so interrupted agent runs can resume.
 
-**Made with ❤️ for Indian retail investors**
+## Rating mapping
 
-[⭐ Star this repo](https://github.com/jitu2611/indian-stock-analyst) · [🐛 Report a bug](https://github.com/jitu2611/indian-stock-analyst/issues) · [💡 Request a feature](https://github.com/jitu2611/indian-stock-analyst/issues)
+TradingAgents retains its nuanced five-tier rating in every report. The portfolio summary maps it as follows:
 
-</div>
+| TradingAgents rating | Portfolio verdict |
+|---|---|
+| Buy / Overweight | 🟢 BUY |
+| Hold | 🟡 HOLD |
+| Underweight / Sell | 🔴 AVOID |
+| Unparseable result | ⚪ REVIEW |
+
+`Sentiment confidence` is the TradingAgents sentiment analyst's data-quality confidence; it is not a probability that the final rating will be correct.
+
+## Portfolio file format
+
+CSV, XLSX, and XLSM are supported. The symbol column may be named `Instrument`, `Trading Symbol`, `Symbol`, `Ticker`, `Security`, or `Stock`.
+
+```csv
+Instrument,Qty.,Avg. cost,LTP
+RELIANCE,10,2450.00,2980.00
+TCS,5,3200.00,3550.00
+BSE:500325,12,2200.00,2450.00
+```
+
+Accepted symbol forms include `RELIANCE`, `NSE:RELIANCE`, `RELIANCE-EQ`, `RELIANCE.NS`, and BSE numeric codes. An `Exchange`/`Segment` column overrides the default exchange when present. Duplicate normalized tickers are analyzed once.
+
+## Use as a Claude skill
+
+`SKILL.md` instructs Claude to parse the portfolio, invoke this CLI, and treat TradingAgents—not ad-hoc web-search verdicts—as the analysis engine. Install the project and configure an LLM provider in the environment where the skill runs.
+
+## Development
+
+The adapter is deliberately thin and can be tested without making market-data or LLM calls:
+
+```bash
+pip install -e '.[dev]'
+pytest
+```
+
+## Disclaimer
+
+This project and TradingAgents are research tools. Their output may be incomplete, stale, non-deterministic, or wrong. Nothing generated here is financial, investment, or trading advice. Verify all data and consult a SEBI-registered investment adviser before acting.
