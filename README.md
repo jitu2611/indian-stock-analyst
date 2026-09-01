@@ -120,6 +120,8 @@ the index all point decisively in one direction. Standout buy.
 
 ## 🧠 How It Works
 
+![Portfolio research workflow](docs/portfolio-analysis-flow.svg)
+
 ```
 Your CSV
    │
