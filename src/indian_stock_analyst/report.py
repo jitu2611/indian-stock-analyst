@@ -23,6 +23,7 @@ def render_report(
 ) -> str:
     items = list(results)
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    has_sentiment = any(item.sentiment_confidence != "Unknown" for item in items)
     lines = [
         "# Indian Portfolio Analysis — TradingAgents",
         "",
@@ -35,16 +36,30 @@ def render_report(
         "",
         "## Summary",
         "",
-        "| Stock | TradingAgents rating | Verdict | Sentiment confidence | Status |",
-        "|---|---|---|---|---|",
     ]
+    if has_sentiment:
+        lines.extend([
+            "| Stock | TradingAgents rating | Verdict | Sentiment confidence | Status |",
+            "|---|---|---|---|---|",
+        ])
+    else:
+        lines.extend([
+            "| Stock | TradingAgents rating | Verdict | Status |",
+            "|---|---|---|---|",
+        ])
     for item in items:
         icon = _VERDICT_ICON.get(item.verdict, "⚪")
         status = "Error" if item.error else "Complete"
-        lines.append(
-            f"| {_cell(item.ticker)} | {_cell(item.signal)} | {icon} {_cell(item.verdict)} "
-            f"| {_cell(item.sentiment_confidence)} | {status} |"
-        )
+        if has_sentiment:
+            lines.append(
+                f"| {_cell(item.ticker)} | {_cell(item.signal)} | {icon} {_cell(item.verdict)} "
+                f"| {_cell(item.sentiment_confidence)} | {status} |"
+            )
+        else:
+            lines.append(
+                f"| {_cell(item.ticker)} | {_cell(item.signal)} | "
+                f"{icon} {_cell(item.verdict)} | {status} |"
+            )
 
     lines.extend(["", "## Detailed decisions", ""])
     base = Path(report_path).parent if report_path else None
@@ -56,10 +71,11 @@ def render_report(
                 "",
                 f"**TradingAgents rating:** {item.signal}  ",
                 f"**Portfolio verdict:** {_VERDICT_ICON.get(item.verdict, '⚪')} {item.verdict}  ",
-                f"**Sentiment data confidence:** {item.sentiment_confidence}",
-                "",
             ]
         )
+        if item.sentiment_confidence != "Unknown":
+            lines.append(f"**Sentiment data confidence:** {item.sentiment_confidence}")
+        lines.append("")
         if item.error:
             lines.extend([f"**Analysis failed:** `{item.error}`", ""])
             continue

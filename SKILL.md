@@ -52,7 +52,7 @@ Locate the uploaded CSV/XLSX/XLSM and use these defaults unless the user overrid
 |---|---|
 | Analysis date | Today, `YYYY-MM-DD` |
 | Unsuffixed symbol exchange | NSE |
-| Analysts | market, social, news, fundamentals |
+| Analysts | market, news, fundamentals; social disabled unless reliable authenticated access is verified |
 | Research debate rounds | 1 |
 | Risk debate rounds | 1 |
 | Checkpoint/resume | Enabled |
@@ -136,11 +136,11 @@ some failed, clearly separate them from completed analyses.
 Use this exact structure:
 
 1. **Run summary** — date, number completed/failed, engine/provider, and output path.
-2. **Portfolio decisions** — table with ticker, TradingAgents rating, mapped verdict, sentiment confidence,
-   and status.
+2. **Portfolio decisions** — table with ticker, TradingAgents rating, mapped verdict, and status. Include
+   sentiment confidence only when the social analyst was explicitly enabled and returned reliable data.
 3. **Key portfolio observations** — concise themes grounded in completed TradingAgents decisions; distinguish
    portfolio-manager conclusions from your own aggregation.
-4. **Failures or limitations** — missing symbols/data, stale inputs, low sentiment confidence, and provider errors.
+4. **Failures or limitations** — missing symbols/data, stale inputs, disabled/unavailable sources, and provider errors.
 5. **Artifacts** — link the consolidated report, JSON, and per-stock complete reports.
 6. **Disclaimer** — AI-generated research is not financial advice; verify data and consult a SEBI-registered adviser.
 

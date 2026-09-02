@@ -8,7 +8,7 @@
 
 Indian Stock Analyst reads a Zerodha, Groww, or other broker holdings export, normalizes each symbol for Yahoo Finance (`RELIANCE.NS` / `500325.BO`), and runs it through TradingAgents' complete research graph:
 
-- Market/technical, sentiment, news, and fundamentals analysts
+- Market/technical, news, and fundamentals analysts by default
 - Bull and bear researchers plus a research manager
 - Trader, risk-management debate, and portfolio manager
 - Five-tier engine rating mapped to this project's Buy/Hold/Avoid portfolio view
@@ -26,7 +26,7 @@ Broker CSV/XLSX
     │
     ▼
 jitu2611/TradingAgents
-    ├─ market + social + news + fundamentals analysts
+    ├─ market + news + fundamentals analysts
     ├─ bull/bear research debate
     ├─ trader + risk debate
     └─ portfolio-manager rating
@@ -115,7 +115,7 @@ Useful options:
 --exchange NSE|BSE       Default exchange for unsuffixed symbols
 --output PATH            Output directory (default: analysis-output/<date>)
 --max-stocks N           Limit a test run and control LLM cost
---analysts LIST          market,social,news,fundamentals
+--analysts LIST          market,news,fundamentals (social is opt-in)
 --debate-rounds N        Bull/bear research depth
 --risk-rounds N          Risk-team discussion depth
 --no-checkpoint          Disable crash/resume checkpoints
@@ -158,7 +158,13 @@ TradingAgents retains its nuanced five-tier rating in every report. The portfoli
 | Underweight / Sell | 🔴 AVOID |
 | Unparseable result | ⚪ REVIEW |
 
-`Sentiment confidence` is the TradingAgents sentiment analyst's data-quality confidence; it is not a probability that the final rating will be correct.
+### Social-source policy
+
+The social analyst is disabled by default. Anonymous Reddit RSS/search is intermittently rate-limited with
+HTTP 429, and StockTwits' anonymous API is intermittently blocked by Cloudflare or returns no Indian-symbol
+stream. Treating those failures as neutral sentiment understated uncertainty and slowed every run. Reports now
+omit sentiment fields unless the social analyst is explicitly enabled with `--analysts ...,social` in an
+environment where authorized, reliable source access has been configured.
 
 ## Portfolio file format
 

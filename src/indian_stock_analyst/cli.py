@@ -53,8 +53,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--risk-rounds", type=int, default=1)
     parser.add_argument(
         "--analysts",
-        default="market,social,news,fundamentals",
-        help="Comma-separated subset of market,social,news,fundamentals",
+        default="market,news,fundamentals",
+        help=(
+            "Comma-separated subset of market,news,fundamentals; social is opt-in because "
+            "anonymous Reddit/StockTwits access is unreliable"
+        ),
     )
     parser.add_argument("--max-stocks", type=int, help="Analyze only the first N unique symbols")
     parser.add_argument("--no-checkpoint", action="store_true")

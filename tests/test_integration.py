@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from indian_stock_analyst.engine import (
+    AnalysisResult,
     TradingAgentsEngine,
     extract_sentiment_confidence,
     map_signal_to_verdict,
@@ -66,3 +67,12 @@ def test_engine_adapter_and_report(tmp_path):
     assert "TradingAgents rating | Verdict" in report
     assert "🟢 BUY" in report
     assert "artifacts/RELIANCE.NS/complete_report.md" in report
+
+
+def test_report_omits_sentiment_when_social_analyst_is_disabled():
+    report = render_report(
+        [AnalysisResult("ACE", "ACE.NS", "ACE Limited", signal="Hold", verdict="HOLD")],
+        "2026-09-01",
+    )
+    assert "Sentiment confidence" not in report
+    assert "| Stock | TradingAgents rating | Verdict | Status |" in report

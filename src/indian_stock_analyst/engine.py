@@ -62,7 +62,7 @@ class TradingAgentsEngine:
         provider: str | None = None,
         deep_model: str | None = None,
         quick_model: str | None = None,
-        selected_analysts: tuple[str, ...] = ("market", "social", "news", "fundamentals"),
+        selected_analysts: tuple[str, ...] = ("market", "news", "fundamentals"),
         debate_rounds: int = 1,
         risk_rounds: int = 1,
         checkpoint: bool = True,
